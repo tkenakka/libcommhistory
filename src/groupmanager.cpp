@@ -216,6 +216,7 @@ void GroupManagerPrivate::groupsAddedSlot(const QList<CommHistory::Group> &added
 {
     Q_Q(GroupManager);
     DEBUG() << Q_FUNC_INFO << addedGroups.count();
+    qDebug() << Q_FUNC_INFO  << "xyz";
 
     foreach (Group group, addedGroups) {
         GroupObject *go = groups.value(group.id());
@@ -460,6 +461,7 @@ void GroupManagerPrivate::add(Group &group)
     Q_Q(GroupManager);
 
     DEBUG() << __PRETTY_FUNCTION__ << ": added" << group.toString();
+    qDebug() << Q_FUNC_INFO  << "xyz";
 
     GroupObject *go = new GroupObject(group, q);
     groups.insert(go->id(), go);
@@ -555,6 +557,7 @@ bool GroupManager::modifyGroup(Group &group)
 bool GroupManager::getGroups(const QString &localUid,
                            const QString &remoteUid)
 {
+qDebug() << Q_FUNC_INFO  << "xyz >>>";
     d->filterLocalUid = localUid;
     d->filterRemoteUid = remoteUid;
     d->isReady = false;
@@ -575,8 +578,10 @@ bool GroupManager::getGroups(const QString &localUid,
         queryOrder += QString::fromLatin1("OFFSET %1 ").arg(d->queryOffset);
 
     QList<Group> results;
-    if (!d->database()->getGroups(localUid, remoteUid, results, queryOrder))
+    if (!d->database()->getGroups(localUid, remoteUid, results, queryOrder)) {
+	qDebug() << Q_FUNC_INFO  << "xyz <<< false";
         return false;
+    }
 
     foreach (Group g, results) {
         GroupObject *go = new GroupObject(g, this);
@@ -588,6 +593,7 @@ bool GroupManager::getGroups(const QString &localUid,
         d->isReady = true;
         emit modelReady(true);
     }
+    qDebug() << Q_FUNC_INFO  << "xyz <<< true";
     return true;
 }
 

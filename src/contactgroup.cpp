@@ -72,6 +72,8 @@ ContactGroup::ContactGroup(QObject *parent)
 
 void ContactGroup::addGroup(GroupObject *group)
 {
+qDebug() << Q_FUNC_INFO << "xyz isValid: " << group->isValid() << " contactName: " << group->contactName() << " contactNames: " << group->contactNames() << " startTime: " << group->startTime() <<" endTime: " << group->endTime();
+
     Q_D(ContactGroup);
     if (!d->groups.contains(group)) {
         d->groups.append(group);
@@ -110,18 +112,26 @@ void ContactGroupPrivate::update()
     QMap<int,QString> contacts;
  
     QDateTime uStartTime, uEndTime, uLastModified;
+    ///uStartTime = QDateTime::currentDateTime();
     int uUnreadMessages = 0;
     GroupObject *uLastEventGroup = 0;
-
+qDebug() << Q_FUNC_INFO  << "xyz ------------ new update -------------"; /// TODO: removeme
     foreach (GroupObject *group, groups) {
         foreach (const Event::Contact &contact, group->contacts())
             contacts[contact.first] = contact.second;
-
-        if (!uStartTime.isValid() || group->startTime() < uStartTime)
+qDebug() << "xyz --- Parsed contacts: " << contacts;
+qDebug() << "xyz Try uStartTime.isValid(): " << uStartTime.isValid() << " uStartTime: " <<uStartTime << " group->startTime(): " << group->startTime(); /// TODO: removeme
+        if (!uStartTime.isValid() || group->startTime() > uStartTime) {
+        	qDebug() << "xyz setting uStartTime:" << group->startTime();
             uStartTime = group->startTime();
+        }
 
-        if (!uEndTime.isValid() || group->endTime() > uEndTime)
+qDebug() << "xyz Try uEndTime.isValid(): " << uEndTime.isValid() << " uEndTime: " <<uEndTime << " group->endTime(): " << group->endTime(); /// TODO: removeme
+
+        if (!uEndTime.isValid() || group->endTime() > uEndTime) {
+qDebug() << "xyz setting uEndTime:" << group->endTime();
             uEndTime = group->endTime();
+        }
 
         if (group->lastEventId() >= 0 && (!uLastEventGroup || group->endTime() > uLastEventGroup->endTime()))
             uLastEventGroup = group;
@@ -135,19 +145,25 @@ void ContactGroupPrivate::update()
     QList<int> uContactIds = contacts.keys();
     QList<QString> uContactNames = contacts.values();
 
+qDebug() << "xyz uContactIds: " << " contactIds: " << uContactIds << " uContactNames: " << uContactNames << " contactNames: " << contactNames;
     if (uContactIds != contactIds || uContactNames != contactNames) {
         contactIds = uContactIds;
         contactNames = uContactNames;
+        qDebug() << "xyz EMIT contactsChanged contactIds: " << contactIds << " contactNames: " << contactNames;
         emit q->contactsChanged();
     }
 
+    qDebug() << "xyz compare uStartTime: " << uStartTime << " to startTime: " << startTime;
     if (uStartTime != startTime) {
         startTime = uStartTime;
+        qDebug() << "xyz EMIT startTimeChanged: " << startTime;
         emit q->startTimeChanged();
     }
 
+    qDebug() << "xyz compare uEndTime: " << uEndTime << " to endTime: " << endTime;
     if (uEndTime != endTime) {
         endTime = uEndTime;
+        qDebug() << "xyz EMIT endTimeChanged: " << endTime;
         emit q->endTimeChanged();
     }
 
@@ -185,8 +201,12 @@ void ContactGroupPrivate::update()
         lastEventStatus = static_cast<int>(lastEventGroup->lastEventStatus());
         lastEventIsDraft = lastEventGroup->lastEventIsDraft();
 
-        if (changed)
+        qDebug() << "xyz lastMessageText: " << lastMessageText;
+
+        if (changed) {
+            qDebug() << "xyz EMIT lastEventChanged";
             emit q->lastEventChanged();
+        }
     } else if (lastEventId >= 0) {
         lastEventId = -1;
         lastMessageText.clear();
@@ -195,6 +215,9 @@ void ContactGroupPrivate::update()
         lastEventType = static_cast<int>(Event::UnknownType);
         lastEventStatus = static_cast<int>(Event::UnknownStatus);
         lastEventIsDraft = false;
+
+        qDebug() << "xyz lastMessageText cleared";
+        qDebug() << "xyz EMIT lastEventChanged";
         emit q->lastEventChanged();
     }
 }

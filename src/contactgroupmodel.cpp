@@ -54,7 +54,7 @@ ContactGroupModelPrivate::~ContactGroupModelPrivate()
 void ContactGroupModelPrivate::setManager(GroupManager *m)
 {
     Q_Q(ContactGroupModel);
-
+    qDebug() << Q_FUNC_INFO  << "xyz >>>";
     if (manager == m)
         return;
 
@@ -81,7 +81,7 @@ void ContactGroupModelPrivate::setManager(GroupManager *m)
         // Create data without sorting
         foreach (GroupObject *group, manager->groups()) {
             int index = indexForContacts(group);
-
+            qDebug() << "xyz group (" << index << ") isValid: " << group->isValid() << " contactName: " << group->contactName() << " contactNames: " << group->contactNames() << " startTime: " << group->startTime() <<" endTime: " << group->endTime();
             if (index < 0) {
                 ContactGroup *item = new ContactGroup(this);
                 index = items.size();
@@ -99,6 +99,8 @@ void ContactGroupModelPrivate::setManager(GroupManager *m)
 
     if (manager->isReady())
         emit q->modelReady(true);
+
+    qDebug() << Q_FUNC_INFO  << "xyz <<<";
 }
 
 int ContactGroupModelPrivate::indexForContacts(GroupObject *group)
@@ -145,6 +147,7 @@ int ContactGroupModelPrivate::indexForObject(GroupObject *group)
 void ContactGroupModelPrivate::groupAdded(GroupObject *group)
 {
     Q_Q(ContactGroupModel);
+    qDebug() << Q_FUNC_INFO  << "xyz >>>";
 
     int index = indexForContacts(group);
 
@@ -169,6 +172,8 @@ void ContactGroupModelPrivate::groupAdded(GroupObject *group)
     item->addGroup(group);
 
     itemDataChanged(index);
+    qDebug() << Q_FUNC_INFO  << "xyz <<<";
+
 }
 
 void ContactGroupModelPrivate::itemDataChanged(int index)
@@ -204,6 +209,7 @@ void ContactGroupModelPrivate::itemDataChanged(int index)
 
 void ContactGroupModelPrivate::groupUpdated(GroupObject *group)
 {
+qDebug() << Q_FUNC_INFO  << "xyz >>>";
     int oldIndex = indexForObject(group);
     int newIndex = -1;
     
@@ -229,6 +235,7 @@ void ContactGroupModelPrivate::groupUpdated(GroupObject *group)
         items[oldIndex]->updateGroup(group);
         itemDataChanged(oldIndex);
     }
+qDebug() << Q_FUNC_INFO  << "xyz <<<";
 }
 
 void ContactGroupModelPrivate::groupDeleted(GroupObject *group)
